@@ -33,7 +33,7 @@
         name: "{{IMAGE_NAME}}"
         tag: "vira-latest"
         source: local
-        repository: "therealvira/{{IMAGE_NAME}}:vira-latest"
+        repository: "{{DOCKER_USERNAME}}/{{IMAGE_NAME}}:vira-latest"
 
     - name: Delete content & directory
       ansible.builtin.file:
