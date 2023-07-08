@@ -1,0 +1,12 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Create Volume
+      docker_volume:
+        driver: "local"
+        name: "{{NAME}}"
+        driver_options:
+          type: "cifs"
+          device: "//{{CIFS_IP}}/{{CIFS_SHARE| default('docker', true)}}/{{SUBFOLDER}}"
+          o: "addr={{CIFS_IP}},username={{CIFS_USERNAME| default('guest', true)}},password={{CIFS_PASSWORD| default('guest', true)}},file_mode={{CIFS_FILE_MODE| default('0777', true)}},dir_mode={{CIFS_DIR_MODE| default('0777', true)}}"

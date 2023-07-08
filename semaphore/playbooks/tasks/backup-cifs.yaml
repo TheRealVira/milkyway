@@ -1,0 +1,33 @@
+---
+- hosts: all[0]
+  become: true
+  tasks:
+    - name: Mount SMB volume
+      ansible.posix.mount:
+        state: mounted
+        fstab: /tmp/tmp.fstab
+        src: "//{{CIFS_IP}}/{{SHARE}}"
+        path: "/tmp/{{SHARE}}/"
+        fstype: cifs
+        opts: "addr={{CIFS_IP}},username={{CIFS_USERNAME| default('guest', true)}},password={{CIFS_PASSWORD| default('guest', true)}},file_mode={{CIFS_FILE_MODE| default('0777', true)}},dir_mode={{CIFS_DIR_MODE| default('0777', true)}}"
+
+    - name: Backup Share
+      community.general.archive:
+        mode: "1777"
+        force_archive: true
+        remove: false
+        path: "/tmp/{{SHARE}}/*"
+        exclude_path:
+          - "/tmp/{{SHARE}}/backup"
+          - "/tmp/{{SHARE}}/dump"
+        format: "zip"
+        dest: "/tmp/{{SHARE}}/backup/backup.zip"
+
+    - name: Unmount SMB volume
+      ansible.posix.mount:
+        state: unmounted
+        fstab: /tmp/tmp.fstab
+        src: "//{{CIFS_IP}}/{{SHARE}}"
+        path: "/tmp/{{SHARE}}"
+
+    - debug: var=output.stdout_lines

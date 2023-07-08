@@ -1,0 +1,45 @@
+---
+- hosts: all[0]
+  tasks:
+    - name: Setup temp build directory
+      file:
+        state: directory
+        path: /tmp/build
+        mode: '0777'
+
+    - name: Copy dockerfile
+      ansible.posix.synchronize:
+        src: "../../../{{IMAGE_NAME}}/build/Dockerfile"
+        dest: "/tmp/build/Dockerfile"
+
+    - name: Build container image
+      docker_image:
+        name: "{{IMAGE_NAME}}"
+        tag: "vira-latest"
+        force_source: true
+        build:
+          path: "/tmp/build"
+        source: build
+        state: present
+
+    - name: Log into DockerHub
+      community.docker.docker_login:
+        username: "{{DOCKER_USERNAME}}"
+        password: "{{DOCKER_PASSWORD}}"
+
+    - name: Push to registry
+      docker_image:
+        push: true
+        name: "{{IMAGE_NAME}}"
+        tag: "vira-latest"
+        source: local
+        repository: "therealvira/{{IMAGE_NAME}}:vira-latest"
+
+    - name: Delete content & directory
+      ansible.builtin.file:
+        state: absent
+        path: /tmp/build
+
+    - name: Log out of DockerHub
+      community.docker.docker_login:
+        state: absent
