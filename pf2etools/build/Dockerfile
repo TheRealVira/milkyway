@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM mhart/alpine-node
 RUN apk update && apk add curl wget rsync
 RUN mkdir /data
 WORKDIR /data
