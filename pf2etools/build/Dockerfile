@@ -1,5 +1,5 @@
 FROM node:lts-alpine
-RUN apk update && apk add curl wget rsync
+RUN apk update && apk add curl wget rsync tar
 RUN mkdir /data
 WORKDIR /data
 RUN curl -s https://api.github.com/repos/Pf2eToolsOrg/Pf2eTools/tags | grep tarball_url | grep v. | cut -d '"' -f 4 | head -n 1 | wget -O Pf2eTools.tar.gz -qi - && tar xzf Pf2eTools.tar.gz --strip-components=1 && rm Pf2eTools.tar.gz
